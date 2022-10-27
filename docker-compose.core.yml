@@ -1,0 +1,70 @@
+version: "3.5"
+
+services:
+  # shared config for both django modules (web + celery)
+  x-module: &module
+    restart: unless-stopped
+    environment:
+      DEBUG: "False"
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      http_proxy: ${HTTP_PROXY}
+      https_proxy: ${HTTPS_PROXY}
+      no_proxy: ${NO_PROXY}
+      WEB_PORT: 8000
+      # ---------------------------------------------------------------
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_PORT: 5432
+      CELERY_BROKER_URL: redis://redis:6379
+      # ---------------------------------------------------------------
+      EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-False}
+      EMAIL_ADMIN: ${EMAIL_ADMIN}
+      # ---------------------------------------------------------------
+      SU_USERNAME: ${SU_USERNAME}
+      SU_PASSWORD: ${SU_PASSWORD}
+      SU_EMAIL: ${EMAIL_ADMIN}
+
+  # shared config to be reused by web containers
+  x-core-web:
+    <<: *module
+    entrypoint: /bin/bash /app/scripts/entrypoint.sh
+    healthcheck:
+      test: no_proxy="*" curl --fail http://localhost:8000/api/health/ || exit
+      start_period: 30s
+      interval: 20s
+
+  # shared config to be reused by celery containers
+  x-core-celery:
+    <<: *module
+    entrypoint: /bin/bash /app/scripts/celery.sh
+    healthcheck:
+      test: celery inspect ping
+      start_period: 15s
+
+  # shared config to be reused by redis containers
+  x-core-redis:
+    image: registry.asap.dsna.fr/infogenestatique/diapason/docker/redis:latest
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+
+  # shared config to be reused by postgres containers
+  x-core-db:
+    image: registry.asap.dsna.fr/infogenestatique/diapason/docker/postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
