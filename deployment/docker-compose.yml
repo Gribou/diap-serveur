@@ -1,0 +1,105 @@
+version: "3.5"
+
+x-core-portal: &portal
+  image: registry.asap.dsna.fr/infogenestatique/diapason/diapason-portal/${PORTAL_ROOT_URL:-root}/${PORTAL_IMAGE_TAG:-master}:latest
+  restart: unless-stopped
+  networks:
+    - portal
+  depends_on:
+    - portal_db
+  volumes:
+    - ./media/:/app/api/media/
+    - ./backups/:/app/backups/
+  environment:
+    DEBUG: "False"
+    SECRET_KEY: ${SECRET_KEY}
+    ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
+    http_proxy: ${HTTP_PROXY}
+    https_proxy: ${HTTPS_PROXY}
+    URL_ROOT: /
+    CONFIG_TYPE: ${CONFIG_TYPE:-''}
+    WEB_PORT: ${WEB_PORT:-8000}
+    INTERNAL_HOSTNAME: ${INTERNAL_HOSTNAME}
+    # ---------------------------------------------------------------
+    DB_ENGINE: django.db.backends.postgresql
+    DB_NAME: postgres
+    DB_USER: postgres
+    DB_PASSWORD: postgres
+    DB_HOST: portal_db
+    DB_PORT: 5432
+    # ---------------------------------------------------------------
+    EMAIL_BACKEND: django.core.mail.backends.smtp.EmailBackend
+    EMAIL_HOST: ${EMAIL_HOST}
+    EMAIL_PORT: ${EMAIL_PORT}
+    EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+    EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+    EMAIL_USE_TLS: ${EMAIL_USE_TLS:-False}
+    EMAIL_ADMIN: ${EMAIL_ADMIN}
+    # ---------------------------------------------------------------
+    SU_USERNAME: ${SU_USERNAME}
+    SU_PASSWORD: ${SU_PASSWORD}
+    SU_EMAIL: ${EMAIL_ADMIN}
+    CELERY_BROKER_URL: redis://portal_redis:6379
+    CELERY_QUEUE: my-portal
+
+services:
+  portal_web:
+    <<: *portal
+    entrypoint: /bin/bash /app/scripts/entrypoint.sh
+    healthcheck:
+      test: /bin/bash /app/scripts/healthcheck.sh
+      start_period: 60s
+      interval: 20s
+
+  portal_celery:
+    <<: *portal
+    depends_on:
+      - portal_redis
+    entrypoint: /bin/bash /app/scripts/celery.sh
+    healthcheck:
+        test: celery inspect ping
+        start_period: 15s
+
+  portal_redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - portal
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+
+  portal_db:
+    image: postgres:alpine
+    restart: unless-stopped
+    networks:
+      - portal
+    volumes:
+      - portal_psql_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - 80:80
+    networks:
+      - portal
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template
+      - ./media/:/app/api/media/
+    environment:
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
+      WEB_PORT: ${WEB_PORT:-8000}
+
+volumes:
+  portal_psql_data:
+
+networks:
+  portal:
