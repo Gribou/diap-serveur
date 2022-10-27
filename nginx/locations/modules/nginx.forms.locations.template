@@ -1,0 +1,12 @@
+location /efne/media/ {
+    alias /app/efne/api/media/;
+}
+
+location /efne/ {
+
+    set $upstream forms_web;
+    proxy_pass          http://$upstream:8000;
+    rewrite /efne/(.*) /$1 break;
+
+    include /etc/nginx/conf.d/utils/proxy.conf;
+}

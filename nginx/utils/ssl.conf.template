@@ -1,0 +1,4 @@
+ssl_certificate /etc/nginx/ssl/default/${SSL_CERTIFICATE_NAME}.pem;
+ssl_certificate_key /etc/nginx/ssl/default/${SSL_KEY_NAME}.pem;
+include /etc/nginx/ssl/options-ssl-nginx.conf;
+ssl_dhparam /etc/nginx/ssl/ssl-dhparams.pem;

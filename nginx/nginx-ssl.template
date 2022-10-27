@@ -1,0 +1,26 @@
+include /etc/nginx/conf.d/utils/internal_ips.conf;
+
+server {
+   listen 80;
+   server_name  _;
+
+   ${CERTBOT_MOUNT} include /etc/nginx/conf.d/locations/others/nginx.certbot.locations;
+
+   location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name  ${ALLOWED_HOSTS};
+
+    client_max_body_size 20M;
+    charset utf-8;
+
+    include /etc/nginx/conf.d/utils/ssl.conf;
+    include /etc/nginx/conf.d/utils/error_pages.conf;
+    include /etc/nginx/conf.d/utils/maintenance_mode.conf;
+    include /etc/nginx/conf.d/locations/nginx.diapason.locations;
+
+}

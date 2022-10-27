@@ -1,0 +1,29 @@
+error_page 404 /404.html;
+error_page 403 /403.html;
+error_page 503 @maintenance;
+error_page 500 502 504 /50x.html;
+
+location /errors.css {
+  alias /app/errors/errors.css;
+}
+
+location = /404.html {
+  root /app/errors;
+  internal;
+}
+
+location = /403.html {
+  root /app/errors;
+  internal;
+}
+
+location @maintenance {
+  root /app/errors;
+  rewrite ^(.*)$ /503.html break;
+  internal;
+}
+
+location = /50x.html {
+  root /app/errors;
+  internal;
+}

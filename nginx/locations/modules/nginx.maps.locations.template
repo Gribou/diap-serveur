@@ -1,0 +1,14 @@
+
+location /coconuts/media/ {
+    alias /app/coconuts/api/media/;
+}
+
+location /coconuts/ {
+
+    set $upstream maps_web;
+    proxy_pass          http://$upstream:8000;
+    rewrite /coconuts/(.*) /$1 break;
+    rewrite ^([^.\?]*[^/])$ $1/ permanent;
+
+    include /etc/nginx/conf.d/utils/proxy.conf;
+}

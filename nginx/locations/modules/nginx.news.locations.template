@@ -1,0 +1,15 @@
+
+location /enews/media/ {
+    alias /app/enews/api/media/;
+}
+
+location /enews/ {
+
+    set $upstream news_web;
+    proxy_pass          http://$upstream:8000;
+    rewrite ^([^.\?]*[^/])$ $1/ permanent;
+    rewrite /enews/(.*) /$1 break;
+
+    include /etc/nginx/conf.d/utils/proxy.conf;
+
+}

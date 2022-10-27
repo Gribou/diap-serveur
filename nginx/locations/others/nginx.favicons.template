@@ -1,0 +1,6 @@
+location ~* ^/(?:favicon|android-chrome-|mstile-|browserconfig.xml) {
+  rewrite ^/?[a-z]*(/static.*)$ $1 last;
+  access_log off;
+  log_not_found off;
+  # redirect /prefix/static to /static
+}

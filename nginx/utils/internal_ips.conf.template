@@ -1,0 +1,5 @@
+map $remote_addr $internal {
+    default 0;
+    127.0.0.1 1; # For local connections
+    # some.other.ip 1; # Internal IP
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta content="utf-8" http-equiv="encoding" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <meta name="msapplication-TileColor" content="#303030" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Diapason</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" />
+  <style>
+    body {
+      background-color: #303030;
+      color: #fff;
+      font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    #root {
+      display: flex;
+      min-height: 100vh;
+      justify-content: stretch;
+    }
+
+    .warning-box {
+      flex-grow: 0;
+      max-width: 50%;
+      flex-basis: 50%;
+      margin: auto;
+      border: 1px solid #ffa726;
+      border-radius: 4px;
+      padding: 6px 16px;
+      display: flex;
+      box-sizing: border-box;
+    }
+
+    .warning-icon {
+      color: #ffa726;
+      padding: 7px 0;
+      font-size: 22px;
+      margin-right: 12px;
+      opacity: 0.9;
+    }
+
+    svg {
+      fill: currentColor;
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .warning-message {
+      color: #ffe2b7;
+      padding: 8px 0;
+    }
+
+    .title {
+      margin-top: -2px;
+      font-weight: 500;
+      margin-bottom: 0.35em;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <div class="warning-box">
+      <div class="warning-icon">
+        <svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z">
+          </path>
+        </svg>
+      </div>
+      <div class="warning-message">
+        <div class="title">Maintenance en cours</div>
+        Diapason est actuellement inaccessible. Veuillez réessayer plus tard.
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

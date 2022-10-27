@@ -1,0 +1,44 @@
+location /portainer {
+    return 301 $scheme://$host/portainer/;
+}
+
+location ^~ /portainer/ {
+    resolver  127.0.0.11 valid=30s;
+    proxy_redirect off;
+    set $upstream_app portainer;
+    set $upstream_port 9000;
+    set $upstream_proto http;
+    proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+
+    rewrite /portainer(.*) $1 break;
+    proxy_hide_header X-Frame-Options; # Possibly not needed after Portainer 1.20.0
+    
+    # Proxy Header Settings
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Ssl on;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+
+location ^~ /portainer/api/websocket/ {
+    resolver 127.0.0.11 valid=30s;
+    set $upstream_app portainer;
+    set $upstream_port 9000;
+    set $upstream_proto http;
+    proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+    proxy_redirect off;
+
+    rewrite /portainer(.*) $1 break;
+    proxy_hide_header X-Frame-Options; # Possibly not needed after Portainer 1.20.0
+
+    # Proxy Header Settings
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-Ssl on;
+    proxy_set_header X-Real-IP $remote_addr;
+
+}

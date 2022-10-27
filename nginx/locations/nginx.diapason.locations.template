@@ -1,0 +1,8 @@
+${MAPS_MOUNT}     include /etc/nginx/conf.d/locations/modules/nginx.maps.locations;
+${FORMS_MOUNT}    include /etc/nginx/conf.d/locations/modules/nginx.forms.locations;
+${NEWS_MOUNT}     include /etc/nginx/conf.d/locations/modules/nginx.news.locations;
+${PERFOS_MOUNT}   include /etc/nginx/conf.d/locations/modules/nginx.perfos.locations;
+${PORTAL_MOUNT}   include /etc/nginx/conf.d/locations/modules/nginx.portal.locations;
+
+include /etc/nginx/conf.d/locations/others/nginx.portainer.locations;
+include /etc/nginx/conf.d/locations/others/nginx.favicons;

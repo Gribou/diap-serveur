@@ -1,0 +1,14 @@
+
+location /media/ {
+    alias /app/portal/api/media/;
+}
+
+location / {
+
+    set $upstream portal_web;
+    proxy_pass          http://$upstream:8000;
+    rewrite ^([^.\?]*[^/])$ $1/ permanent;
+    rewrite /(.*) /$1 break;
+
+    include /etc/nginx/conf.d/utils/proxy.conf;
+}

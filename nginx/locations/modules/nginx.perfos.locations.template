@@ -1,0 +1,13 @@
+location /perfos/media/ {
+    alias /app/perfos/api/media/;
+}
+
+location /perfos/ {
+
+    set $upstream perfos_web;
+    proxy_pass          http://$upstream:8000;
+    rewrite ^([^.\?]*[^/])$ $1/ permanent;
+    rewrite /perfos/(.*) /$1 break;
+
+    include /etc/nginx/conf.d/utils/proxy.conf;
+}
