@@ -1,0 +1,58 @@
+version: "3.5"
+
+x-core-forms: &forms
+  image: registry.asap.dsna.fr/infogenestatique/diapason/diapason-forms/${FORMS_URL_ROOT:-efne}/${FORMS_IMAGE_TAG:-master}:latest
+  networks:
+    - forms
+  depends_on:
+    - forms_db
+  volumes:
+    - ./data/forms/media/:/app/api/media/
+    - ./data/forms/backups/:/app/backups/
+  environment:
+    URL_ROOT: /${FORMS_URL_ROOT:-efne}/
+    DB_HOST: forms_db
+    HOSTNAME: ${HOSTNAME}
+    CELERY_QUEUE: forms
+
+services:
+  forms_web:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-web
+    <<: *forms
+
+  forms_celery:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-celery
+    <<: *forms
+    depends_on:
+      - redis
+
+  redis:
+    networks:
+      - forms
+
+  forms_db:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-db
+    networks:
+      - forms
+    volumes:
+      - forms_psql_data:/var/lib/postgresql/data/
+
+  nginx:
+    networks:
+      - forms
+    volumes:
+      - ./data/forms/media/:/app/efne/api/media/
+    environment:
+      FORMS_MOUNT: ""
+
+volumes:
+  forms_psql_data:
+
+networks:
+  forms:

@@ -1,0 +1,57 @@
+version: "3.5"
+
+x-core-maps: &maps
+  image: registry.asap.dsna.fr/infogenestatique/diapason/diapason-maps/${MAPS_URL_ROOT:-coconuts}/${MAPS_IMAGE_TAG:-master}:latest
+  networks:
+    - maps
+  depends_on:
+    - maps_db
+  volumes:
+    - ./data/maps/backups/:/app/backups/
+    - ./data/maps/media/:/app/api/media/
+  environment:
+    URL_ROOT: /${MAPS_URL_ROOT:-coconuts}/
+    DB_HOST: maps_db
+    CELERY_QUEUE: maps
+
+services:
+  maps_web:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-web
+    <<: *maps
+
+  maps_celery:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-celery
+    <<: *maps
+    depends_on:
+      - redis
+
+  redis:
+    networks:
+      - maps
+
+  maps_db:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-db
+    networks:
+      - maps
+    volumes:
+      - maps_psql_data:/var/lib/postgresql/data/
+
+  nginx:
+    volumes:
+      - ./data/maps/media/:/app/coconuts/api/media/
+    networks:
+      - maps
+    environment:
+      MAPS_MOUNT: ""
+
+volumes:
+  maps_psql_data:
+
+networks:
+  maps:

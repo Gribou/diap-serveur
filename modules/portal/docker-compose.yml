@@ -1,0 +1,59 @@
+version: "3.5"
+
+# shared conf between web and celery containers
+x-core-portal: &portal
+  image: "registry.asap.dsna.fr/infogenestatique/diapason/diapason-portal/root/${PORTAL_IMAGE_TAG:-master}:latest"
+  networks:
+    - portal
+  depends_on:
+    - portal_db
+  environment:
+    URL_ROOT: /
+    INTERNAL_HOSTNAME: ${HOSTNAME}
+    DB_HOST: portal_db
+    CELERY_QUEUE: portal
+  volumes:
+    - ./data/portal/media/:/app/api/media/
+    - ./data/portal/backups/:/app/backups/
+
+services:
+  portal_web:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-web
+    <<: *portal
+
+  portal_celery:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-celery
+    <<: *portal
+    depends_on:
+      - redis
+
+  redis:
+    networks:
+      - portal
+
+  portal_db:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-db
+    networks:
+      - portal
+    volumes:
+      - portal_psql_data:/var/lib/postgresql/data/
+
+  nginx:
+    networks:
+      - portal
+    volumes:
+      - ./data/portal/media/:/app/portal/api/media/
+    environment:
+      PORTAL_MOUNT: ""
+
+volumes:
+  portal_psql_data:
+
+networks:
+  portal:

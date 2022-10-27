@@ -1,0 +1,58 @@
+version: "3.5"
+
+x-core-perfos: &perfos
+  image: registry.asap.dsna.fr/infogenestatique/diapason/diapason-perfos/${PERFOS_URL_ROOT:-perfos}/${PERFOS_IMAGE_TAG:-master}:latest
+  networks:
+    - perfos
+  depends_on:
+    - perfos_db
+  volumes:
+    - ./data/perfos/media/:/app/api/media/
+    - ./data/perfos/backups/:/app/backups/
+  environment:
+    URL_ROOT: /${PERFOS_URL_ROOT:-perfos}/
+    PERFS_WEB_PORT: 8000
+    DB_HOST: perfos_db
+    CELERY_QUEUE: perfos
+
+services:
+  perfos_web:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-web
+    <<: *perfos
+
+  perfos_celery:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-celery
+    <<: *perfos
+    depends_on:
+      - redis
+
+  redis:
+    networks:
+      - perfos
+
+  perfos_db:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-db
+    networks:
+      - perfos
+    volumes:
+      - perfos_psql_data:/var/lib/postgresql/data/
+
+  nginx:
+    volumes:
+      - ./data/perfos/media/:/app/perfos/api/media/
+    networks:
+      - perfos
+    environment:
+      PERFOS_MOUNT: ""
+
+volumes:
+  perfos_psql_data:
+
+networks:
+  perfos:

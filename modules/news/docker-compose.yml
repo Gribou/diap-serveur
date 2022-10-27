@@ -1,0 +1,59 @@
+version: "3.5"
+
+x-core-news: &news
+  image: registry.asap.dsna.fr/infogenestatique/diapason/diapason-news/${NEWS_URL_ROOT:-enews}/${NEWS_IMAGE_TAG:-master}:latest
+  networks:
+    - news
+  depends_on:
+    - news_db
+  volumes:
+    - ./data/news/media/:/app/api/media/
+    - ./data/news/backups/:/app/backups/
+  environment:
+    CONFIG_TYPE: ${CONFIG_TYPE:-''}
+    INTERNAL_HOSTNAME: ${HOSTNAME}
+    URL_ROOT: /${NEWS_URL_ROOT:-enews}/
+    DB_HOST: news_db
+    CELERY_QUEUE: news
+
+services:
+  news_web:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-web
+    <<: *news
+
+  news_celery:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-celery
+    <<: *news
+    depends_on:
+      - redis
+
+  redis:
+    networks:
+      - news
+
+  news_db:
+    extends:
+      file: docker-compose.core.yml
+      service: x-core-db
+    networks:
+      - news
+    volumes:
+      - news_psql_data:/var/lib/postgresql/data/
+
+  nginx:
+    networks:
+      - news
+    volumes:
+      - ./data/news/media/:/app/enews/api/media/
+    environment:
+      NEWS_MOUNT: ""
+
+volumes:
+  news_psql_data:
+
+networks:
+  news:
