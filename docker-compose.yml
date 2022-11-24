@@ -31,7 +31,7 @@ services:
       PERFOS_MOUNT: "#"
 
   redis:
-    image: registry.asap.dsna.fr/infogenestatique/diapason/docker/redis:latest
+    image: redis:latest
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
