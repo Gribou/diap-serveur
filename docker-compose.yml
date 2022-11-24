@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx:latest
+    from: nginx:latest
     restart: unless-stopped
     networks:
       - default
@@ -29,7 +29,7 @@ services:
       PERFOS_MOUNT: "#"
 
   redis:
-    image: redis:6.2-alpine
+    from: redis:6.2-alpine
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
