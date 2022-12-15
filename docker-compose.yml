@@ -22,11 +22,11 @@ services:
       # This allows to comment "includes" in nginx conf file (cf nginx/utils/nginx.apps_locations.template)
       # if value is "#", the app location file will not be included in nginx conf
       # if value is "", th app location file will be included in nginx conf
-      FORMS_MOUNT: "#"
-      PORTAL_MOUNT: "#"
-      MAPS_MOUNT: "#"
-      NEWS_MOUNT: "#"
-      PERFOS_MOUNT: "#"
+      FORMS_MOUNT: ""
+      PORTAL_MOUNT: ""
+      MAPS_MOUNT: ""
+      NEWS_MOUNT: ""
+      PERFOS_MOUNT: ""
 
   redis:
     image: redis
