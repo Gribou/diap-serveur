@@ -1,7 +1,7 @@
 version: "3.5"
 services:
   nginx:
-    image: registry.asap.dsna.fr/infogenestatique/diapason/docker/nginx:latest
+    image: nginx:latest
     restart: unless-stopped
     networks:
       - default
@@ -29,7 +29,7 @@ services:
       NEWS_MOUNT: "#"
       PERFOS_MOUNT: "#"
   redis:
-    image: registry.asap.dsna.fr/infogenestatique/diapason/docker/redis:latest
+    image: redis:latest
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
